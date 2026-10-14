@@ -1,0 +1,492 @@
+[
+  {
+    "id": "examples/2x2_01.csv",
+    "size": 2,
+    "label": "2 × 2 - voorbeeld 1",
+    "rowTargets": [
+      3,
+      7
+    ],
+    "columnTargets": [
+      4,
+      6
+    ],
+    "givens": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/2x2_02.csv",
+    "size": 2,
+    "label": "2 × 2 - voorbeeld 2",
+    "rowTargets": [
+      4,
+      7
+    ],
+    "columnTargets": [
+      3,
+      8
+    ],
+    "givens": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/2x2_03.csv",
+    "size": 2,
+    "label": "2 × 2 - voorbeeld 3",
+    "rowTargets": [
+      3,
+      8
+    ],
+    "columnTargets": [
+      7,
+      4
+    ],
+    "givens": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "practice/2x2_01.csv",
+    "size": 2,
+    "label": "2 × 2 - oefening 1",
+    "rowTargets": [
+      3,
+      8
+    ],
+    "columnTargets": [
+      4,
+      7
+    ],
+    "givens": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "practice/2x2_02.csv",
+    "size": 2,
+    "label": "2 × 2 - oefening 2",
+    "rowTargets": [
+      4,
+      6
+    ],
+    "columnTargets": [
+      7,
+      3
+    ],
+    "givens": [
+      [
+        null,
+        null
+      ],
+      [
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/3x3_01.csv",
+    "size": 3,
+    "label": "3 × 3 - voorbeeld 1",
+    "rowTargets": [
+      16,
+      15,
+      10
+    ],
+    "columnTargets": [
+      11,
+      23,
+      7
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/3x3_02.csv",
+    "size": 3,
+    "label": "3 × 3 - voorbeeld 2",
+    "rowTargets": [
+      20,
+      14,
+      15
+    ],
+    "columnTargets": [
+      7,
+      23,
+      19
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/3x3_03.csv",
+    "size": 3,
+    "label": "3 × 3 - voorbeeld 3",
+    "rowTargets": [
+      15,
+      10,
+      16
+    ],
+    "columnTargets": [
+      7,
+      11,
+      23
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "practice/3x3_01.csv",
+    "size": 3,
+    "label": "3 × 3 - oefening 1",
+    "rowTargets": [
+      14,
+      20,
+      15
+    ],
+    "columnTargets": [
+      23,
+      7,
+      19
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "practice/3x3_02.csv",
+    "size": 3,
+    "label": "3 × 3 - oefening 2",
+    "rowTargets": [
+      10,
+      15,
+      16
+    ],
+    "columnTargets": [
+      11,
+      7,
+      23
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/4x4_01.csv",
+    "size": 4,
+    "label": "4 × 4 - voorbeeld 1",
+    "rowTargets": [
+      26,
+      12,
+      20,
+      14
+    ],
+    "columnTargets": [
+      22,
+      14,
+      22,
+      14
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null,
+        7
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        6,
+        4,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        1,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/4x4_02.csv",
+    "size": 4,
+    "label": "4 × 4 - voorbeeld 2",
+    "rowTargets": [
+      16,
+      18,
+      23,
+      18
+    ],
+    "columnTargets": [
+      29,
+      16,
+      17,
+      13
+    ],
+    "givens": [
+      [
+        null,
+        6,
+        4,
+        null
+      ],
+      [
+        null,
+        3,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        9,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "examples/4x4_03.csv",
+    "size": 4,
+    "label": "4 × 4 - voorbeeld 3",
+    "rowTargets": [
+      13,
+      25,
+      15,
+      29
+    ],
+    "columnTargets": [
+      14,
+      22,
+      20,
+      26
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        null,
+        6
+      ],
+      [
+        null,
+        null,
+        2,
+        9
+      ],
+      [
+        2,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "practice/4x4_01.csv",
+    "size": 4,
+    "label": "4 × 4 - oefening 1",
+    "rowTargets": [
+      22,
+      26,
+      29,
+      19
+    ],
+    "columnTargets": [
+      29,
+      19,
+      21,
+      27
+    ],
+    "givens": [
+      [
+        null,
+        5,
+        null,
+        null
+      ],
+      [
+        null,
+        2,
+        9,
+        8
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "id": "practice/4x4_02.csv",
+    "size": 4,
+    "label": "4 × 4 - oefening 2",
+    "rowTargets": [
+      12,
+      27,
+      15,
+      27
+    ],
+    "columnTargets": [
+      23,
+      16,
+      27,
+      15
+    ],
+    "givens": [
+      [
+        null,
+        null,
+        5,
+        null
+      ],
+      [
+        6,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        3,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  }
+]

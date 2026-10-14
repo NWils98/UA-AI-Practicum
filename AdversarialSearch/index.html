@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boter-kaas-en-eieren - Practicum 2</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --text: light-dark(#243d43, #e4efed); --muted: light-dark(#596f74, #a5b9ba);
+      --page: light-dark(#f7faf9, #172629); --surface: light-dark(#ffffff, #203438);
+      --line: light-dark(#bccdcc, #4b6569); --focus: light-dark(#126a74, #8ad5dc);
+      --x: light-dark(#176b75, #8ad5dc); --o: light-dark(#8c4b2b, #eeb894);
+      --win: light-dark(#eaf6ef, #284638); --green: light-dark(#176943, #8fd3ad);
+      --red: light-dark(#ad281f, #ff9d95);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--text); font-family: system-ui, sans-serif; }
+    main { width: min(100% - 32px, 620px); margin: 32px auto; }
+    h1 { font-size: 28px; font-weight: 500; margin: 0 0 8px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 26px; }
+    .picker { display: grid; gap: 6px; font-size: 14px; margin-bottom: 14px; }
+    select { width: 100%; font: inherit; padding: 12px; border: 1px solid var(--line); border-radius: 6px; color: var(--text); background: var(--surface); min-height: 44px; }
+    .help { min-height: 48px; font-size: 14px; color: var(--muted); margin: 0 0 14px; }
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 348px; margin: 0 auto; }
+    .cell { aspect-ratio: 1; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--muted); font: 400 18px system-ui, sans-serif; min-width: 0; }
+    .cell[data-mark="X"] { color: var(--x); font-size: 48px; font-weight: 500; }
+    .cell[data-mark="O"] { color: var(--o); font-size: 48px; font-weight: 500; }
+    .cell.is-winning { background: var(--win); border-color: var(--green); }
+    .cell:disabled { opacity: 1; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .status { text-align: center; min-height: 48px; margin: 18px 0 4px; font-size: 16px; }
+    .status[data-error="true"] { color: var(--red); }
+    .detail { text-align: center; color: var(--muted); font-size: 13px; min-height: 22px; margin: 0 0 18px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .actions button { font: 400 14px system-ui, sans-serif; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; min-height: 44px; }
+    .actions button:disabled { color: var(--muted); }
+    .source { color: var(--muted); font-size: 13px; margin-top: 24px; }
+    @media (max-width: 360px) { h1 {font-size: 24px;} .cell[data-mark="X"], .cell[data-mark="O"] {font-size: 42px;} }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Boter-kaas-en-eieren</h1>
+    <p class="subtitle">Eindscore voor X: winst +1 · gelijkspel 0 · verlies −1</p>
+    <label class="picker">Stap<select id="stage">
+      <option value="manual">1 · Speel zelf X en O</option>
+      <option value="minimax">2 · Minimax</option>
+      <option value="alphabeta">3 · Alpha-beta pruning</option>
+      <option value="expectimax">4 · Expectimax</option>
+    </select></label>
+    <p class="help" id="help">Speel om de beurt X en O. Drie op een rij wint.</p>
+    <div class="board" id="board" role="group" aria-label="Spelbord met negen vakjes"></div>
+    <p class="status" id="status" role="status" aria-live="polite">X is aan zet.</p>
+    <p class="detail" id="detail"></p>
+    <div class="actions"><button id="next" type="button" hidden>Laat X spelen</button><button id="reset" type="button">Nieuw spel</button></div>
+    <p class="source" id="source">Vakjes zijn genummerd 0–8, zoals in de Python-bestanden.</p>
+  </main>
+  <script>
+    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    const boardElement = document.getElementById('board');
+    const picker = document.getElementById('stage'), status = document.getElementById('status');
+    const detail = document.getElementById('detail'), next = document.getElementById('next');
+    let board = Array(9).fill('.'), busy = false, requestId = 0, teacher = false;
+    const buttons = Array.from({length: 9}, (_, i) => {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'cell'; button.dataset.index = i;
+      button.addEventListener('click', () => {
+        if (!canClick(i)) return;
+        board[i] = player(); status.dataset.error = 'false'; render();
+      });
+      boardElement.appendChild(button); return button;
+    });
+    function player() { return board.filter(x => x === 'X').length === board.filter(x => x === 'O').length ? 'X' : 'O'; }
+    function winningLine() { return lines.find(([a,b,c]) => board[a] !== '.' && board[a] === board[b] && board[a] === board[c]); }
+    function finished() { return Boolean(winningLine()) || !board.includes('.'); }
+    function canClick(i) { return !busy && !finished() && board[i] === '.' && (picker.value === 'manual' || picker.value !== 'expectimax' && player() === 'O'); }
+    function render(message = null) {
+      const win = winningLine();
+      buttons.forEach((button, i) => {
+        button.textContent = board[i] === '.' ? String(i) : board[i]; button.dataset.mark = board[i];
+        button.disabled = !canClick(i); button.classList.toggle('is-winning', Boolean(win?.includes(i)));
+        button.setAttribute('aria-label', `Vakje ${i}, ${board[i] === '.' ? 'leeg' : board[i]}`);
+      });
+      next.hidden = picker.value === 'manual'; next.disabled = busy || finished() || picker.value !== 'expectimax' && player() === 'O';
+      next.textContent = busy ? 'Aan het zoeken…' : picker.value === 'expectimax' ? 'Volgende zet' : 'Laat X spelen';
+      if (message !== null) status.textContent = message;
+      else if (win) status.textContent = `${board[win[0]]} wint! Eindscore voor X: ${board[win[0]] === 'X' ? '+1' : '−1'}.`;
+      else if (!board.includes('.')) status.textContent = 'Gelijkspel. Eindscore: 0.';
+      else status.textContent = picker.value === 'manual' ? `${player()} is aan zet.`
+        : picker.value === 'expectimax' ? `${player()} is aan zet: ${player() === 'X' ? 'jouw code' : 'een willekeurige zet'}.`
+        : player() === 'X' ? 'Laat jouw code een zet voor X kiezen.' : 'Jij speelt O. Klik een leeg vakje.';
+    }
+    function reset() {
+      requestId++; busy = false; board = Array(9).fill('.'); status.dataset.error = 'false'; detail.textContent = '';
+      const help = {
+        manual: 'Speel om de beurt X en O. Drie op een rij wint.',
+        minimax: 'Jouw minimax speelt X; jij speelt O. X maximaliseert, O minimaliseert.',
+        alphabeta: 'Hetzelfde spel met alpha-beta. Vergelijk de score en het aantal onderzochte posities.',
+        expectimax: 'Jouw code kiest X. O kiest uniform willekeurig uit alle toegestane zetten. Klik voor elke volgende zet.'
+      };
+      document.getElementById('help').textContent = help[picker.value];
+      document.getElementById('source').textContent = picker.value === 'manual'
+        ? 'Vakjes zijn genummerd 0–8, zoals in de Python-bestanden.'
+        : `${teacher ? 'Docentmodel' : 'Jouw bestand'}: ${teacher ? 'model' : ''}${picker.value}.py`;
+      render();
+    }
+    next.addEventListener('click', async () => {
+      if (next.disabled) return;
+      if (location.protocol === 'file:') {status.dataset.error = 'true'; render('Start de app met python run.py om jouw Python-code te gebruiken.'); return;}
+      const id = ++requestId; busy = true; status.dataset.error = 'false'; render('Zoeken…');
+      try {
+        const response = await fetch('/api/move', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({board, algorithm: picker.value})});
+        const result = await response.json();
+        if (id !== requestId) return;
+        if (!response.ok) throw new Error(result.error || 'De zet kon niet worden berekend.');
+        board = result.board;
+        if (result.player === 'X') detail.textContent = `Laatste zoekactie: ${result.nodes.toLocaleString('nl-NL')} posities · waarde voor X: ${Number(result.value.toFixed(4))}`;
+        else detail.textContent = 'O heeft uniform willekeurig een toegestane zet gekozen.';
+        busy = false; render();
+      } catch (error) {
+        if (id !== requestId) return;
+        busy = false; status.dataset.error = 'true'; render(error.message);
+      }
+    });
+    document.getElementById('reset').addEventListener('click', reset);
+    picker.addEventListener('change', reset);
+    if (location.protocol !== 'file:') fetch('/api/info').then(response => response.json()).then(info => {
+      teacher = info.teacher;
+      if (picker.value !== 'manual') document.getElementById('source').textContent = `${teacher ? 'Docentmodel' : 'Jouw bestand'}: ${teacher ? 'model' : ''}${picker.value}.py`;
+    }).catch(() => {});
+    render();
+  </script>
+</body>
+</html>
