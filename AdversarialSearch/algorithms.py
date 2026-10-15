@@ -2,7 +2,8 @@
 from pathlib import Path
 import math
 import types
-from game import legal_moves, next_player, play_move, utility
+import sys
+from game import legal_moves, next_player, play_move, utility, count_generated_positions
 
 NAMES = ('minimax', 'alphabeta', 'expectimax')
 
@@ -22,7 +23,10 @@ def load_algorithm(name, teacher=False):
     path = folder/f'{prefix}{name}.py'
     if not path.is_file():
         raise StError(f'{path.name} is niet gevonden.')
-    # Read source on every request, so saved  edits take effect immediately.
+    # Match normal script imports, including helpers beside the teacher models.
+    if str(folder) not in sys.path:
+        sys.path.append(str(folder))
+    # Read source on every request, so edits take effect immediately.
     module = types.ModuleType(f'ttt_{prefix}{name}')
     module.__file__ = str(path)
     try:
@@ -30,13 +34,7 @@ def load_algorithm(name, teacher=False):
         original = getattr(module, name)
     except Exception as error:
         raise StError(f'{path.name}: {type(error).__name__}: {error}') from error
-    calls = [0]
-    def counted(*args, **kwargs):
-        calls[0] += 1
-        return original(*args, **kwargs)
-    # Recursive calls in the function are counted too.
-    module.__dict__[name] = counted
-    return counted, calls
+    return original
 
 
 def checked_value(function, board, player, name):
@@ -45,7 +43,7 @@ def checked_value(function, board, player, name):
     except Exception as error:
         raise StError(f'{name}: {type(error).__name__}: {error}') from error
     if value is None:
-        raise StError(f'Vul {name}.py in. De functie geeft nog None terug.')
+        raise StError(f'Vul student_{name}.py in. De functie geeft nog None terug.')
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
         raise StError('Geef een eindscore of verwachte score als getal terug.')
     if not -1.000000001 <= value <= 1.000000001:
@@ -54,19 +52,22 @@ def checked_value(function, board, player, name):
 
 
 def evaluate(board, name, teacher=False):
-    function, calls = load_algorithm(name, teacher)
-    value = checked_value(function, board, next_player(board), name)
-    return value, calls[0]
+    function = load_algorithm(name, teacher)
+    with count_generated_positions() as generated:
+        value = checked_value(function, board, next_player(board), name)
+    # Include the initial position in a single value search.
+    return value, generated[0]+1
 
 
 def choose_x_move(board, name, teacher=False):
     if utility(board) is not None or next_player(board) != 'X':
         raise StError('X kan nu geen zet doen.')
-    function, calls = load_algorithm(name, teacher)
+    function = load_algorithm(name, teacher)
     best_move, best_value = None, float('-inf')
-    for move in legal_moves(board):
-        child = play_move(board, move, 'X')
-        value = checked_value(function, child, 'O', name)
-        if value > best_value:
-            best_move, best_value = move, value
-    return best_move, best_value, calls[0]
+    with count_generated_positions() as generated:
+        for move in legal_moves(board):
+            child = play_move(board, move, 'X')
+            value = checked_value(function, child, 'O', name)
+            if value > best_value:
+                best_move, best_value = move, value
+    return best_move, best_value, generated[0]

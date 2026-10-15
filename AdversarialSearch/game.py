@@ -1,4 +1,21 @@
 """Provided game rules. Empty squares are '.', and positions are numbered 0-8."""
+from contextlib import contextmanager
+from contextvars import ContextVar
+
+_search_counter = ContextVar('tictactoe_generated_positions', default=None)
+
+
+@contextmanager
+def count_generated_positions():
+    """Measure successful play_move calls, including calls inside helpers."""
+    counter = [0]
+    token = _search_counter.set(counter)
+    try:
+        yield counter
+    finally:
+        _search_counter.reset(token)
+
+
 WIN_LINES = ((0, 1, 2), (3, 4, 5), (6, 7, 8),
              (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6))
 
@@ -44,6 +61,9 @@ def play_move(board, move, player):
         raise ValueError('Deze zet is niet toegestaan.')
     result = list(board)
     result[move] = player
+    counter = _search_counter.get()
+    if counter is not None:
+        counter[0] += 1
     return tuple(result)
 
 

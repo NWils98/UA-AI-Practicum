@@ -35,6 +35,34 @@ def default_cases(boards):
     return list(dict.fromkeys(board for board in selected if board in boards))
 
 
+def full_search_counts(boards):
+    """Exact tree size for exhaustive minimax, with no pruning or caching."""
+    counts = {}
+    for board in sorted(boards, key=lambda b: b.count('.')):
+        children = [play_move(board, move, next_player(board)) for move in legal_moves(board)]
+        counts[board] = 1+sum(counts[child] for child in children)
+    return counts
+
+
+def check_search_cases(cases, reference, name, teacher=False):
+    failures, generated = 0, 0
+    observed_expansion = False
+    for board in cases:
+        actual, positions = evaluate(board, name, teacher)
+        generated += positions
+        if utility(board) is None and positions > 1:
+            observed_expansion = True
+        expected = float(reference[board])
+        if abs(actual-expected) > 1e-9:
+            failures += 1
+            print(f'FOUT {"".join(board)} ({next_player(board)}): kreeg {actual}, verwacht {expected:.10g}.')
+    return failures, generated, observed_expansion
+
+
+def pruning_reduced_work(generated, full_minimax, observed_expansion):
+    return observed_expansion and generated < full_minimax
+
+
 def main():
     parser = argparse.ArgumentParser(description='Controleer de waarde die jouw zoekalgoritme teruggeeft.')
     parser.add_argument('algorithm', choices=NAMES)
@@ -44,21 +72,28 @@ def main():
     minimax, expectimax = reference_tables()
     reference = expectimax if args.algorithm == 'expectimax' else minimax
     cases = sorted(reference) if args.all else default_cases(reference)
-    failures = 0
-    for board in cases:
-        try:
-            actual, _ = evaluate(board, args.algorithm, args.model)
-        except StError as error:
-            print(f'FOUT: {error}')
-            return 2
-        expected = float(reference[board])
-        if abs(actual-expected) > 1e-9:
-            failures += 1
-            print(f'FOUT {"".join(board)} ({next_player(board)}): kreeg {actual}, verwacht {expected:.10g}.')
+    try:
+        failures, generated, observed_expansion = check_search_cases(
+            cases, reference, args.algorithm, args.model)
+    except StError as error:
+        print(f'FOUT: {error}')
+        return 2
     if failures:
         print(f'{failures} van {len(cases)} toestanden niet correct.')
         return 1
-    print(f'CORRECT: {len(cases)} toestanden gecontroleerd voor {args.algorithm}.')
+    if args.algorithm == 'alphabeta':
+        full_counts = full_search_counts(reference)
+        full_minimax = sum(full_counts[board] for board in cases)
+        print(f'Gegenereerde posities (inclusief beginborden): {generated}; volledige minimax: {full_minimax}.')
+        if not observed_expansion:
+            print('NIET GECONTROLEERD: geen opvolgers gemeten. Gebruik de meegeleverde play_move om opvolgers te maken.')
+            return 2
+        if not pruning_reduced_work(generated, full_minimax, observed_expansion):
+            print('NIET CORRECT: de waarden kloppen, maar de zoekopdracht is niet kleiner dan volledige minimax.')
+            return 1
+        print(f'CORRECT: {len(cases)} waarden kloppen en de zoekopdracht is kleiner dan volledige minimax.')
+    else:
+        print(f'CORRECT: {len(cases)} waarden gecontroleerd voor {args.algorithm}; {generated} gegenereerde posities inclusief beginborden.')
     return 0
 
 
