@@ -58,12 +58,12 @@ te herkennen. De waarde blijft altijd vanuit X bekeken, ook als O aan zet is.
 
 ## Stap 2: minimax
 
-Vul alleen `minimax(board, player)` in `student_minimax.py` in.
+Vul alleen `minimax(board, player)` in `minimax.py` in.
 X maximaliseert; O minimaliseert.
 Je kunt dit kleine bestand rechtstreeks uitvoeren:
 
 ```powershell
-python student_minimax.py
+python minimax.py
 python checker.py minimax
 ```
 
@@ -73,10 +73,10 @@ Bij meerdere even goede zetten wordt de eerste gekozen; elke optimale zet is gel
 
 ## Stap 3: alpha-beta pruning
 
-Vul `alphabeta(board, player, alpha, beta)` in `student_alphabeta.py` in.
+Vul `alphabeta(board, player, alpha, beta)` in `alphabeta.py` in.
 
 ```powershell
-python student_alphabeta.py
+python alphabeta.py
 python checker.py alphabeta
 ```
 
@@ -88,12 +88,12 @@ bij de volledige begin-grenzen, niet willekeurige interne terugkeerwaarden.
 
 ## Stap 4: expectimax
 
-Vul `expectimax(board, player)` in `student_expectimax.py` in.
+Vul `expectimax(board, player)` in `expectimax.py` in.
 X maximaliseert nog steeds, maar **O kiest nu uniform willekeurig** uit de toegestane
 zetten. O is dus een kansnode: neem het gemiddelde van de kindwaarden.
 
 ```powershell
-python student_expectimax.py
+python expectimax.py
 python checker.py expectimax
 ```
 
@@ -127,4 +127,4 @@ python checker.py expectimax --all
 ```
 
 Exitcode 0: correct; 1: een waarde is fout; 2: onvolledige code of een uitvoeringfout.
-Opgeslagen wijzigingen aan de studentfunctie worden bij de volgende AI-zet ingelezen.
+Opgeslagen wijzigingen aan de functie worden bij de volgende AI-zet ingelezen.
